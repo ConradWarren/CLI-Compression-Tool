@@ -15,7 +15,18 @@ int main(int argc, char** argv){
 
 	printf("pre-compression: %s\n", argv[1]);
 	
-	LZ77_Compress(argv[1], strlen(argv[1]));
+	token* LZ77_List = LZ77_Compress(argv[1], strlen(argv[1]));
+	
+	char* test = LZ77_Decompress(LZ77_List);
+
+	printf("post-compression %s\n", test);
+
+	if(strcmp(test, argv[1]) == 0){
+		printf("test passed\n");
+	}else{
+		printf("test failed\n");
+	}
+
 
 	return 0;
 }
