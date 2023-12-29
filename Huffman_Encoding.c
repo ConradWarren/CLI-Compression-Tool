@@ -12,7 +12,6 @@ void Init_Heap(min_heap* _heap, int symbol_count){
 	_heap->arr = (huffman_node**)malloc(_heap->heap_capacity * sizeof(huffman_node*));
 }
 
-
 huffman_node* Pop_Heap(min_heap* _heap){
 	
 	huffman_node* result = _heap->arr[0];
@@ -171,4 +170,66 @@ huffman_code* Generate_Huffman_Codes(huffman_node* root, int symbol_count){
 	Generate_Huffman_Codes_Recursive(root, h_codes, 0, codes, &idx);
 
 	return h_codes;
+}
+
+char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count){
+	
+	char* encoded_data = NULL;
+	long long encoded_length = 0;
+	long long idx = 0;
+	char** table = (char**)malloc(256 * sizeof(char*));
+	int* code_lengths = (int*)malloc(256 * sizeof(int));
+	
+	token* current = list_head;
+
+	for(int i = 0; i<symbol_count; i++){
+		table[(unsigned char)h_codes[i].symbol] = (char*)malloc((h_codes[i].code_length+1) * sizeof(char));
+		memcpy(table[(unsigned char)h_codes[i].symbol], h_codes[i].code, (h_codes[i].code_length + 1) * sizeof(char));
+		code_lengths[h_codes[i].symbol] = h_codes[i].code_length;
+	}
+	
+	while(current != NULL){
+		encoded_length += 3 * code_lengths[(unsigned char)','];
+		encoded_length += code_lengths[(unsigned char)current->L];
+		encoded_length += code_lengths[(unsigned char)current->D];
+		encoded_length += code_lengths[(unsigned char)current->C];	
+		current = current->next;
+	}
+	
+	encoded_data = (char*)malloc((encoded_length + 1) * sizeof(char));
+
+	while(list_head != NULL){	
+		memcpy(encoded_data + idx, table[(unsigned char)list_head->D], code_lengths[(unsigned char)list_head->D] * sizeof(char));
+		idx += code_lengths[(unsigned char)list_head->D];	
+		memcpy(encoded_data + idx, table[(unsigned char)','], code_lengths[(unsigned char)','] * sizeof(char));
+		idx += code_lengths[(unsigned char)','];
+		memcpy(encoded_data + idx, table[(unsigned char)list_head->L], code_lengths[(unsigned char)list_head->L] * sizeof(char));
+		idx += code_lengths[(unsigned char)list_head->L];	
+		memcpy(encoded_data + idx, table[(unsigned char)','], code_lengths[(unsigned char)','] * sizeof(char));
+		idx += code_lengths[(unsigned char)','];
+		memcpy(encoded_data + idx, table[(unsigned char)list_head->C], code_lengths[(unsigned char)list_head->C] * sizeof(char));
+		idx += code_lengths[(unsigned char)list_head->C];
+		memcpy(encoded_data + idx, table[(unsigned char)','], code_lengths[(unsigned char)','] * sizeof(char));
+		idx += code_lengths[(unsigned char)','];
+		list_head = list_head->next;
+	}
+
+	for(int i = 0; i<symbol_count; i++){
+		free(table[(unsigned char)h_codes[i].symbol]);
+	}
+
+	free(table);
+	free(code_lengths);
+	return encoded_data;
+}
+
+void Delete_Huffman_Tree(huffman_node* root){
+	
+	if(root == NULL){
+		return;
+	}
+	
+	Delete_Huffman_Tree(root->left);
+	Delete_Huffman_Tree(root->right);
+	free(root);
 }

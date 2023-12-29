@@ -36,5 +36,9 @@ int main(int argc, char** argv){
 
 	huffman_code* h_codes = Generate_Huffman_Codes(huffman_tree, symbol_count);
 	
+	char* encoded_data = Encode_Data(LZ77_List, h_codes, symbol_count);	
+	
+	printf("Encoded_Data : %s\n", encoded_data);
+
 	return 0;
 }

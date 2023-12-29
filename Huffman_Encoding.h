@@ -23,8 +23,12 @@ typedef struct symbol_frequency{
 
 symbol_frequency* Build_Frequency_Table(token* list_head, int* symbol_count);
 
+void Delete_Huffman_Tree(huffman_node* root);
+
 huffman_node* Build_Huffman_Tree(symbol_frequency* frequency_table, int symbol_count);
 
 huffman_code* Generate_Huffman_Codes(huffman_node* root, int symbol_count);
+
+char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count);
 
 #endif
