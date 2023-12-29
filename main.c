@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "LZ77.h"
+#include "Huffman_Encoding.h"
 
 //LZ77 compression -> Huffman Encoding -> Binary File.
-
+// Frequency_Table 
 
 int main(int argc, char** argv){
 	
@@ -26,7 +27,12 @@ int main(int argc, char** argv){
 	}else{
 		printf("test failed\n");
 	}
-
+	
+	int symbol_count = 0;
+	symbol_frequency* frequency_table = Build_Frequency_Table(LZ77_List, &symbol_count);	
+	printf("symbol count = %d\n", symbol_count);	
+	
+	huffman_node* huffman_tree = Build_Huffman_Tree(frequency_table, symbol_count);
 
 	return 0;
 }
