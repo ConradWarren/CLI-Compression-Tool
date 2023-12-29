@@ -145,3 +145,34 @@ symbol_frequency* Build_Frequency_Table(token* list_head, int* symbol_count){
 
 	return frequency_table;
 }
+
+void Generate_Huffman_Codes_Recursive(huffman_node* root, huffman_code* h_codes, int depth, char* code, int* idx){
+	
+	if(root->symbol != -1){
+		h_codes[*idx].symbol = root->symbol;
+		h_codes[*idx].code = (char*)malloc((depth+1)*sizeof(char));
+		memcpy(h_codes[*idx].code, code, depth+1);
+		printf("idx = %d\n", *idx);
+
+		(*idx)++;
+		return;
+	}
+	
+	code[depth] = '0';
+	code[depth+1] = '\0';
+	Generate_Huffman_Codes_Recursive(root->left, h_codes, depth+1, code, idx);
+
+	code[depth] = '1';
+	code[depth+1] = '\0';
+	Generate_Huffman_Codes_Recursive(root->right, h_codes, depth+1, code, idx);
+}
+
+huffman_code* Generate_Huffman_Codes(huffman_node* root, int symbol_count){
+	huffman_code* h_codes = (huffman_code*)malloc(symbol_count * sizeof(huffman_code));
+	int idx = 0;
+	char codes[257];
+	
+	Generate_Huffman_Codes_Recursive(root, h_codes, 0, codes, &idx);
+
+	return h_codes;
+}

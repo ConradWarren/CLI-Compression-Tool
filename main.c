@@ -5,7 +5,7 @@
 #include "Huffman_Encoding.h"
 
 //LZ77 compression -> Huffman Encoding -> Binary File.
-// Frequency_Table 
+// Frequency_Table
 
 int main(int argc, char** argv){
 	
@@ -34,5 +34,7 @@ int main(int argc, char** argv){
 	
 	huffman_node* huffman_tree = Build_Huffman_Tree(frequency_table, symbol_count);
 
+	huffman_code* h_codes = Generate_Huffman_Codes(huffman_tree, symbol_count);
+	
 	return 0;
 }
