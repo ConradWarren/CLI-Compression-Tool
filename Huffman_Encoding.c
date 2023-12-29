@@ -12,9 +12,6 @@ void Init_Heap(min_heap* _heap, int symbol_count){
 	_heap->arr = (huffman_node**)malloc(_heap->heap_capacity * sizeof(huffman_node*));
 }
 
-void Delete_Heap(min_heap* _heap){
-	free(_heap->arr);
-}
 
 huffman_node* Pop_Heap(min_heap* _heap){
 	
@@ -114,7 +111,7 @@ huffman_node* Build_Huffman_Tree(symbol_frequency* frequency_table, int symbol_c
 		internal_node->frequency = internal_node->left->frequency + internal_node->right->frequency;
 		Push_Heap(&_heap, internal_node);
 	}
-	Delete_Heap(&_heap);
+	free(_heap.arr);
 	return internal_node;
 }
 
@@ -150,10 +147,9 @@ void Generate_Huffman_Codes_Recursive(huffman_node* root, huffman_code* h_codes,
 	
 	if(root->symbol != -1){
 		h_codes[*idx].symbol = root->symbol;
+		h_codes[*idx].code_length = depth;
 		h_codes[*idx].code = (char*)malloc((depth+1)*sizeof(char));
 		memcpy(h_codes[*idx].code, code, depth+1);
-		printf("idx = %d\n", *idx);
-
 		(*idx)++;
 		return;
 	}
