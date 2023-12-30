@@ -227,41 +227,38 @@ token* Decode_Huffman_Data(huffman_node* root, char* encoded_data){
 	
 	huffman_node* current = root;
 	token* result = NULL;
-	toekn* current_token = NULL;
-	unsigned char* str_buffer[256];
+	token* current_token = NULL;
+	unsigned char str_buffer[256];
 	int str_buffer_idx = 0;
 	int L = 0;
 	int D = 0;
 	char C = 0;
 	int idx = 0;
 	
-
 	for(int i = 0; encoded_data[i] != '\0'; i++){
 		
-		if(encoded_data[i] == '0'){
-			current = current->left;
-		}else{
-			current = current->right;
-		}
+		current = (encoded_data[i] == '0') ? current->left : current->right;
+
 		if(current->symbol != -1 && current->symbol != (int)','){
 			str_buffer[str_buffer_idx] = (unsigned char)current->symbol;
 			str_buffer_idx++;
 			current = root;
 		}else if(current->symbol != -1){
-			if(idx == 0) L = (int)str_buffer[0];
-			else if(idx == 1) D = (int)str_buffer[0];
+			if(idx == 0) D = (int)str_buffer[0];
+			else if(idx == 1) L = (int)str_buffer[0];
 			else if(str_buffer_idx != 0) C = str_buffer[0];
 			else{
 				C = ',';
 				i++;
 			}
-			if(result == NULL){
+			if(result == NULL && idx == 2){
 				result = Add_Token(L, D, C);
 				current_token = result;
-			}else{
+			}else if(idx == 2){
 				current_token->next = Add_Token(L, D, C);
 				current_token = current_token->next;
 			}
+			str_buffer_idx = 0;
 			idx = (idx+1)%3;
 			current = root;
 		}
@@ -279,4 +276,12 @@ void Delete_Huffman_Tree(huffman_node* root){
 	Delete_Huffman_Tree(root->left);
 	Delete_Huffman_Tree(root->right);
 	free(root);
+}
+
+void Delete_Huffman_Codes(huffman_code* h_codes, int symbol_count){
+	
+	for(int i = 0; i<symbol_count; i++){
+		free(h_codes[i].code);
+	}
+	free(h_codes);
 }
