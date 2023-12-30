@@ -9,6 +9,7 @@ token* Add_Token(int L, int D, char C){
 	result->L = L;
 	result->D = D;
 	result->C = C;
+	result->next = NULL;
 }
 
 void Print_Token_List(token* head){
