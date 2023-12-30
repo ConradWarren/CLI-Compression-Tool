@@ -40,6 +40,11 @@ int Deflate(const char* input_file_path, const char* output_file_path){
 	size_t uncompressed_data_length = 0;
 	int symbol_count = 0;
 	
+	if(strcmp(input_file_path, output_file_path) == 0){
+		fprintf(stderr, "Error: Input and Output Files Can Not be Equal\n");
+		return EXIT_FAILURE;
+	}
+
 	if(file == NULL){
 		fprintf(stderr, "Error: Could Not Open Input File\n");
 		return EXIT_FAILURE;
@@ -70,18 +75,20 @@ int Deflate(const char* input_file_path, const char* output_file_path){
 	char* encoded_data = Encode_Data(LZ77_token_list, h_codes, symbol_count);
 	Delete_Huffman_Codes(h_codes, symbol_count);
 	
-	token* test = Decode_Huffman_Data(h_tree, encoded_data); 
-	char* test_output = LZ77_Decompress(test);
-	
-	Compare_Lists(LZ77_token_list, test);	
+	file = fopen(output_file_path, "wb");
 
-	return 0;
-	if(strcmp(test_output, uncompressed_input) == 0){
-		printf("test passed\n");
-	}else{
-		printf("test failed, test output :\n%s\n", test_output);
+	if(file == NULL){
+		fprintf(stderr, "Error: Could Not Open Output File\n");
+		free(encoded_data);
+		Delete_Huffman_Tree(h_tree);
+		return EXIT_FAILURE;
 	}
-
+	
+	fwrite(encoded_data, 1, strlen(encoded_data), file);
+	
+	fclose(file);
+	free(encoded_data);
+	Delete_Huffman_Tree(h_tree);
 	return 0;
 }
 
