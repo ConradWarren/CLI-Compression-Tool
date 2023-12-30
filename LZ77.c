@@ -62,8 +62,6 @@ token* LZ77_Compress(const char* input, size_t input_length){
 
 	}
 	
-	Print_Token_List(result);
-
 	return result;
 }
 
@@ -93,3 +91,16 @@ char* LZ77_Decompress(token* list_head){
 	result[string_size] = '\0';
 	return result;
 }
+
+void Delete_List(token* list_head){
+	
+	token* next = NULL;
+	while(list_head != NULL){
+		next = list_head->next;
+		free(list_head);
+		list_head = next;
+	}
+}
+
+
+
