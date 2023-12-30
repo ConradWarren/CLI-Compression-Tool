@@ -31,4 +31,5 @@ huffman_code* Generate_Huffman_Codes(huffman_node* root, int symbol_count);
 
 char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count);
 
+token* Decode_Huffman_Data(huffman_node* root, char* encoded_data);
 #endif

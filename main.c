@@ -4,8 +4,12 @@
 #include "LZ77.h"
 #include "Huffman_Encoding.h"
 
-//LZ77 compression -> Huffman Encoding -> Binary File.
-// Frequency_Table
+//TODO: Currently we can only handle a search buffer of one byte. Need to change many things about Huffman_Encoding
+//to handle a search buffer of 1-8Mb bytes
+//Things to change:
+//	Frequency table calculations
+//	Encoding Data
+//	Decoding Data
 
 int main(int argc, char** argv){
 	
@@ -39,6 +43,8 @@ int main(int argc, char** argv){
 	char* encoded_data = Encode_Data(LZ77_List, h_codes, symbol_count);	
 	
 	printf("Encoded_Data : %s\n", encoded_data);
+
+	Decode_Huffman_Data(huffman_tree, encoded_data);
 
 	return 0;
 }
