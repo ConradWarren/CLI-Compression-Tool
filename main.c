@@ -11,6 +11,8 @@
 //	Encoding Data
 //	Decoding Data
 
+
+
 int main(int argc, char** argv){
 	
 	if(argc < 2){
@@ -44,7 +46,16 @@ int main(int argc, char** argv){
 	
 	printf("Encoded_Data : %s\n", encoded_data);
 
-	Decode_Huffman_Data(huffman_tree, encoded_data);
+	token* decoded_list = Decode_Huffman_Data(huffman_tree, encoded_data);
+	
+	char* test_2 = LZ77_Decompress(decoded_list);
+	
+	printf("decoded and decompressed data : %s\n", test_2);
 
+	if(strcmp(test_2, argv[1]) == 0){
+		printf("test passed\n");
+	}else{
+		printf("test failed\n");
+	}
 	return 0;
 }
