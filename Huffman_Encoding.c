@@ -128,10 +128,11 @@ symbol_frequency* Build_Frequency_Table(token* list_head, int* symbol_count){
 	//in the future
 	
 	while(list_head != NULL){
-		frequency_table[(unsigned char)','].frequency += 3;
 		frequency_table[(unsigned char)list_head->C].frequency++;
 		frequency_table[(unsigned char)list_head->L].frequency++;
-		frequency_table[(unsigned char)list_head->D].frequency++;
+		frequency_table[(unsigned char)(list_head->D & 0xFF)].frequency++;
+		frequency_table[(unsigned char)((list_head->D >> 8) & 0xFF)].frequency++;
+		frequency_table[(unsigned char)((list_head->D >> 16) & 0xFF)].frequency++;	
 		list_head = list_head->next;
 	}
 	
@@ -189,28 +190,27 @@ char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count){
 	}
 	
 	while(current != NULL){
-		encoded_length += 3 * code_lengths[(unsigned char)','];
 		encoded_length += code_lengths[(unsigned char)current->L];
-		encoded_length += code_lengths[(unsigned char)current->D];
+		encoded_length += code_lengths[current->D & 0xFF];
+		encoded_length += code_lengths[(current->D >> 8) & 0xFF];
+		encoded_length += code_lengths[(current->D >> 16) & 0xFF];
 		encoded_length += code_lengths[(unsigned char)current->C];	
 		current = current->next;
 	}
 	
 	encoded_data = (char*)malloc((encoded_length + 1) * sizeof(char));
 
-	while(list_head != NULL){	
-		memcpy(encoded_data + idx, table[(unsigned char)list_head->D], code_lengths[(unsigned char)list_head->D] * sizeof(char));
-		idx += code_lengths[(unsigned char)list_head->D];	
-		memcpy(encoded_data + idx, table[(unsigned char)','], code_lengths[(unsigned char)','] * sizeof(char));
-		idx += code_lengths[(unsigned char)','];
+	while(list_head != NULL){
+		memcpy(encoded_data + idx, table[(unsigned char)((list_head->D >> 16) & 0xff)], code_lengths[(unsigned char)list_head->D] * sizeof(char));
+		idx += code_lengths[(unsigned char)((list_head->D >> 16) & 0xff)];
+		memcpy(encoded_data + idx, table[(unsigned char)((list_head->D >> 8) & 0xff)], code_lengths[(unsigned char)list_head->D] * sizeof(char));
+		idx += code_lengths[(unsigned char)((list_head->D >> 8) & 0xff)];		
+		memcpy(encoded_data + idx, table[(unsigned char)(list_head->D & 0xff)], code_lengths[(unsigned char)list_head->D] * sizeof(char));
+		idx += code_lengths[(unsigned char)(list_head->D & 0xff)];
 		memcpy(encoded_data + idx, table[(unsigned char)list_head->L], code_lengths[(unsigned char)list_head->L] * sizeof(char));
-		idx += code_lengths[(unsigned char)list_head->L];	
-		memcpy(encoded_data + idx, table[(unsigned char)','], code_lengths[(unsigned char)','] * sizeof(char));
-		idx += code_lengths[(unsigned char)','];
+		idx += code_lengths[(unsigned char)list_head->L];
 		memcpy(encoded_data + idx, table[(unsigned char)list_head->C], code_lengths[(unsigned char)list_head->C] * sizeof(char));
 		idx += code_lengths[(unsigned char)list_head->C];
-		memcpy(encoded_data + idx, table[(unsigned char)','], code_lengths[(unsigned char)','] * sizeof(char));
-		idx += code_lengths[(unsigned char)','];
 		list_head = list_head->next;
 	}
 
@@ -246,13 +246,13 @@ token* Decode_Huffman_Data(huffman_node* root, char* encoded_data){
 		}
 	}
 
-	for(int i = 0; i<str_buffer_idx; i += 6){
+	for(int i = 0; i<str_buffer_idx; i += 5){
 		
 		if(result == NULL){
-			result = Add_Token((unsigned char)str_buffer[i+2],(unsigned char)str_buffer[i],(char)str_buffer[i+4]);
+			result = Add_Token((unsigned char)str_buffer[i+3],(((int)str_buffer[i]) << 16) | (((int)str_buffer[i+1]) << 8) | (((int)str_buffer[i+2])),(char)str_buffer[i+4]);
 			current_token = result;
 		}else{
-			current_token->next = Add_Token((unsigned char)str_buffer[i+2],(unsigned char)str_buffer[i],(char)str_buffer[i+4]);
+			current_token->next = Add_Token((unsigned char)str_buffer[i+3],(((int)str_buffer[i]) << 16) | (((int)str_buffer[i+1]) << 8) | (((int)str_buffer[i+2])),(char)str_buffer[i+4]);
 			current_token = current_token->next;
 		}
 
