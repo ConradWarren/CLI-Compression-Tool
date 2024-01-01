@@ -1,7 +1,7 @@
 #include "LZ77.h"
 
 #define MAX_SEARCH_BUFFER_SIZE 65536
-#define MAX_LOOK_AHEAD_BUFFER_SIZE 256
+#define MAX_LOOK_AHEAD_BUFFER_SIZE 255
 #define MIN_PATTERN_MATCH_SIZE 0
 
 token* Add_Token(int L, int D, char C){

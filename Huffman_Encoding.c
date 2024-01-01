@@ -199,13 +199,14 @@ char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count){
 	}
 	
 	encoded_data = (char*)malloc((encoded_length + 1) * sizeof(char));
+	encoded_data[encoded_length] = '\0';
 
 	while(list_head != NULL){
-		memcpy(encoded_data + idx, table[(unsigned char)((list_head->D >> 16) & 0xff)], code_lengths[(unsigned char)list_head->D] * sizeof(char));
+		memcpy(encoded_data + idx, table[(unsigned char)((list_head->D >> 16) & 0xff)], code_lengths[(unsigned char)((list_head->D >> 16) & 0xff)] * sizeof(char));
 		idx += code_lengths[(unsigned char)((list_head->D >> 16) & 0xff)];
-		memcpy(encoded_data + idx, table[(unsigned char)((list_head->D >> 8) & 0xff)], code_lengths[(unsigned char)list_head->D] * sizeof(char));
+		memcpy(encoded_data + idx, table[(unsigned char)((list_head->D >> 8) & 0xff)], code_lengths[(unsigned char)((list_head->D >> 8) & 0xff)] * sizeof(char));
 		idx += code_lengths[(unsigned char)((list_head->D >> 8) & 0xff)];		
-		memcpy(encoded_data + idx, table[(unsigned char)(list_head->D & 0xff)], code_lengths[(unsigned char)list_head->D] * sizeof(char));
+		memcpy(encoded_data + idx, table[(unsigned char)(list_head->D & 0xff)], code_lengths[(unsigned char)(list_head->D & 0xff)] * sizeof(char));
 		idx += code_lengths[(unsigned char)(list_head->D & 0xff)];
 		memcpy(encoded_data + idx, table[(unsigned char)list_head->L], code_lengths[(unsigned char)list_head->L] * sizeof(char));
 		idx += code_lengths[(unsigned char)list_head->L];
@@ -228,17 +229,17 @@ token* Decode_Huffman_Data(huffman_node* root, char* encoded_data){
 	huffman_node* current = root;
 	token* result = NULL;
 	token* current_token = NULL;
-	unsigned char* str_buffer = (unsigned char*)malloc((strlen(encoded_data)+1) * sizeof(char));
+	unsigned char* str_buffer = (unsigned char*)malloc((strlen(encoded_data) + 1) * sizeof(char));
 	int str_buffer_idx = 0;
-	int L = 0;
-	int D = 0;
-	char C = 0;
-	int idx = 0;
 	
 	for(int i = 0; encoded_data[i] != '\0'; i++){
 		
 		current = (encoded_data[i] == '0') ? current->left : current->right;
-		
+		if(encoded_data[i] != '0' && encoded_data[i] != '1'){
+			printf("????\n");
+		}
+
+
 		if(current->symbol != -1){
 			str_buffer[str_buffer_idx] = (unsigned char)current->symbol;
 			str_buffer_idx++;
@@ -255,11 +256,8 @@ token* Decode_Huffman_Data(huffman_node* root, char* encoded_data){
 			current_token->next = Add_Token((unsigned char)str_buffer[i+3],(((int)str_buffer[i]) << 16) | (((int)str_buffer[i+1]) << 8) | (((int)str_buffer[i+2])),(char)str_buffer[i+4]);
 			current_token = current_token->next;
 		}
-
 	}
-
 	free(str_buffer);
-
 	return result;
 }
 
