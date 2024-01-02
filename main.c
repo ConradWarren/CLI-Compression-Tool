@@ -44,16 +44,18 @@ huffman_node* Read_Huffman_Tree(FILE* file){
 
 int Deflate(const char* input_file_path, const char* output_file_path){
 	
-	FILE* file = fopen(input_file_path, "r");
-	char* uncompressed_input = NULL;
-	size_t uncompressed_data_length = 0;
-	int symbol_count = 0;
-	
 	if(strcmp(input_file_path, output_file_path) == 0){
 		fprintf(stderr, "Error: Input and Output Files Can Not be Equal\n");
 		return EXIT_FAILURE;
 	}
-
+	
+	FILE* file = fopen(input_file_path, "r");
+	char* uncompressed_input = NULL;
+	char* encoded_data = NULL;
+	unsigned long long uncompressed_data_length = 0;
+	unsigned long long encoded_data_length = 0;
+	int symbol_count = 0;
+	
 	if(file == NULL){
 		fprintf(stderr, "Error: Could Not Open Input File\n");
 		return EXIT_FAILURE;
@@ -70,7 +72,14 @@ int Deflate(const char* input_file_path, const char* output_file_path){
 		return EXIT_FAILURE;
 	}
 
-	fread(uncompressed_input, 1, uncompressed_data_length, file);
+	unsigned long long data_read = fread(uncompressed_input, 1, uncompressed_data_length, file);
+
+	if(data_read != uncompressed_data_length){
+		fprintf(stderr, "Error: Unable to Load Input FIle Into Memory\n");
+		free(uncompressed_input);
+		return EXIT_FAILURE;
+	}
+
 	uncompressed_input[uncompressed_data_length] = '\0';
 	fclose(file);
 	
@@ -82,8 +91,7 @@ int Deflate(const char* input_file_path, const char* output_file_path){
 	free(frequency_table);
 	huffman_code* h_codes = Generate_Huffman_Codes(h_tree, symbol_count);
 	
-	unsigned long long encoded_data_length = 0;
-	char* encoded_data = Encode_Data(LZ77_token_list, h_codes, symbol_count, &encoded_data_length);
+	encoded_data = Encode_Data(LZ77_token_list, h_codes, symbol_count, &encoded_data_length);
 	Delete_Huffman_Codes(h_codes, symbol_count);
 	
 	file = fopen(output_file_path, "wb");
@@ -95,7 +103,7 @@ int Deflate(const char* input_file_path, const char* output_file_path){
 		Delete_List(LZ77_token_list);
 		return EXIT_FAILURE;
 	}
-		
+	
 	Write_Huffman_Tree(file, h_tree);
 	fwrite(&encoded_data_length, sizeof(unsigned long long), 1, file);
 	fwrite(encoded_data, 1, (encoded_data_length%8 == 0) ? encoded_data_length/8 : encoded_data_length/8 + 1, file);
@@ -119,6 +127,7 @@ int Inflate(const char* input_file_path, const char* output_file_path){
 	unsigned long long encoded_data_length = 0;
 	unsigned long long encoded_bit_count = 0;
 	char* encoded_data = NULL;
+	char* decompressed_data = NULL;
 	huffman_node* h_tree = NULL;
 	token* LZ77_token_list = NULL;
 
@@ -139,10 +148,9 @@ int Inflate(const char* input_file_path, const char* output_file_path){
 		return EXIT_FAILURE;
 	}
 	
-	size_t bytes_read = fread(encoded_data, sizeof(char), encoded_data_length, file);
+	unsigned long long bytes_read = fread(encoded_data, sizeof(char), encoded_data_length, file);
 	fclose(file);
 	if(bytes_read != encoded_data_length){
-		printf("%ld, %lld", bytes_read, encoded_data_length);
 		fprintf(stderr, "Error: Input File Not Formated Correctly\n");
 		Delete_Huffman_Tree(h_tree);
 		free(encoded_data);
@@ -154,7 +162,7 @@ int Inflate(const char* input_file_path, const char* output_file_path){
 	Delete_Huffman_Tree(h_tree);
 	free(encoded_data);
 	
-	char* decompressed_data = LZ77_Decompress(LZ77_token_list);
+	decompressed_data = LZ77_Decompress(LZ77_token_list);
 	Delete_List(LZ77_token_list);
 
 	file = fopen(output_file_path, "wb");

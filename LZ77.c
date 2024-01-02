@@ -12,16 +12,6 @@ token* Add_Token(int L, int D, char C){
 	result->next = NULL;
 }
 
-void Print_Token_List(token* head){
-	
-	if(head == NULL){
-		return;
-	}
-
-	printf("(%d, %d, %c)\n", head->D, head->L, head->C);
-	Print_Token_List(head->next);
-}
-
 token* LZ77_Compress(const char* input, size_t input_length){
 	
 	token* result = NULL;

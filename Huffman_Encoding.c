@@ -123,9 +123,6 @@ symbol_frequency* Build_Frequency_Table(token* list_head, int* symbol_count){
 		frequency_table[i].symbol = i;
 		frequency_table[i].frequency = 0;
 	}
-
-	//TODO: frquency table can only handle L and D values of 8 bits, needs to increased
-	//in the future
 	
 	while(list_head != NULL){
 		frequency_table[(unsigned char)list_head->C].frequency++;
@@ -234,7 +231,6 @@ char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count, uns
 	free(code_lengths);
 	free(encoded_data);
 	
-
 	return bit_wise_encoded_data;
 }
 
