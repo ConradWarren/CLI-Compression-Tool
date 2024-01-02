@@ -173,10 +173,10 @@ huffman_code* Generate_Huffman_Codes(huffman_node* root, int symbol_count){
 	return h_codes;
 }
 
-char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count){
+char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count, unsigned long long* bit_count){
 	
 	char* encoded_data = NULL;
-	long long encoded_length = 0;
+	unsigned long long encoded_length = 0;
 	long long idx = 0;
 	char** table = (char**)malloc(256 * sizeof(char*));
 	int* code_lengths = (int*)malloc(256 * sizeof(int));
@@ -215,31 +215,41 @@ char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count){
 		list_head = list_head->next;
 	}
 
+	(*bit_count) = encoded_length;
+
+	unsigned long long bitwise_encoded_length = (encoded_length % 8 == 0) ? encoded_length / 8 : encoded_length / 8 + 1;
+	char* bit_wise_encoded_data = (char*)calloc(bitwise_encoded_length + 1,sizeof(char));
+
+	for(int i = 0; i<encoded_length; i++){
+		if(encoded_data[i] == '1'){
+			bit_wise_encoded_data[i/8] |= (1 << (i%8));
+		}
+	}
+
 	for(int i = 0; i<symbol_count; i++){
 		free(table[(unsigned char)h_codes[i].symbol]);
 	}
 
 	free(table);
 	free(code_lengths);
-	return encoded_data;
+	free(encoded_data);
+	
+
+	return bit_wise_encoded_data;
 }
 
-token* Decode_Huffman_Data(huffman_node* root, char* encoded_data){
+token* Decode_Huffman_Data(huffman_node* root, char* encoded_data, unsigned long long bit_count){
 	
 	huffman_node* current = root;
 	token* result = NULL;
 	token* current_token = NULL;
-	unsigned char* str_buffer = (unsigned char*)malloc((strlen(encoded_data) + 1) * sizeof(char));
+	unsigned char* str_buffer = (unsigned char*)malloc((bit_count + 1) * sizeof(char));
 	int str_buffer_idx = 0;
 	
-	for(int i = 0; encoded_data[i] != '\0'; i++){
+	for(int i = 0; i < bit_count; i++){
 		
-		current = (encoded_data[i] == '0') ? current->left : current->right;
-		if(encoded_data[i] != '0' && encoded_data[i] != '1'){
-			printf("????\n");
-		}
-
-
+		current = (encoded_data[i/8] & (1 << (i % 8))) ? current->right : current->left;
+		
 		if(current->symbol != -1){
 			str_buffer[str_buffer_idx] = (unsigned char)current->symbol;
 			str_buffer_idx++;

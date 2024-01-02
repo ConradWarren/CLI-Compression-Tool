@@ -27,9 +27,9 @@ huffman_node* Build_Huffman_Tree(symbol_frequency* frequency_table, int symbol_c
 
 huffman_code* Generate_Huffman_Codes(huffman_node* root, int symbol_count);
 
-char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count);
+char* Encode_Data(token* list_head, huffman_code* h_codes, int symbol_count, unsigned long long* bit_count);
 
-token* Decode_Huffman_Data(huffman_node* root, char* encoded_data);
+token* Decode_Huffman_Data(huffman_node* root, char* encoded_data, unsigned long long bit_count);
 
 void Delete_Huffman_Tree(huffman_node* root);
 
