@@ -12,7 +12,7 @@ token* Add_Token(int L, int D, char C){
 	result->next = NULL;
 }
 
-token* LZ77_Compress(const char* input, size_t input_length){
+token* LZ77_Compress(const char* input, unsigned long long input_length){
 	
 	token* result = NULL;
 	token* current = NULL;
@@ -56,19 +56,14 @@ token* LZ77_Compress(const char* input, size_t input_length){
 	return result;
 }
 
-char* LZ77_Decompress(token* list_head){
+char* LZ77_Decompress(token* list_head, unsigned long long data_length){
 	
-	size_t string_capacity = 100;
-	size_t string_size = 0;
-	char* result = (char*)malloc((string_capacity + 1) * sizeof(char));
+	char* result = (char*)malloc(data_length * sizeof(char));
+	unsigned long long string_size = 0;
 	
 	while(list_head != NULL){
-		while(string_size + list_head->L + 1 >= string_capacity){
-			string_capacity += string_capacity / 2;
-			result = (char*)realloc(result,(string_capacity + 1) * sizeof(char));
-		}
 		
-		for(int i = 0; i<list_head->L; i++){
+		for(unsigned long long i = 0; i<list_head->L; i++){
 			result[string_size + i] = result[string_size - list_head->D + i];
 		}
 

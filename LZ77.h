@@ -14,9 +14,9 @@ typedef struct token{
 
 token* Add_Token(int L, int D, char C);
 
-token* LZ77_Compress(const char* input, size_t input_length);
+token* LZ77_Compress(const char* input, unsigned long long input_length);
 
-char* LZ77_Decompress(token* list_head);
+char* LZ77_Decompress(token* list_head, unsigned long long data_length);
 
 unsigned long long Get_Data_Length(token* list_head);
 

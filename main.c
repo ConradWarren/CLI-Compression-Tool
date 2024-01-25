@@ -161,9 +161,15 @@ int Inflate(const char* input_file_path, const char* output_file_path){
 	LZ77_token_list = Decode_Huffman_Data(h_tree, encoded_data, encoded_bit_count); 
 	Delete_Huffman_Tree(h_tree);
 	free(encoded_data);
-	
-	decompressed_data = LZ77_Decompress(LZ77_token_list);
+
 	unsigned long long decompressed_data_length = Get_Data_Length(LZ77_token_list);
+	decompressed_data = LZ77_Decompress(LZ77_token_list, decompressed_data_length);
+	
+	if(decompressed_data == NULL){
+		fprintf(stderr, "Error: Could not decompress data\n");
+		return EXIT_FAILURE;
+	}
+
 	Delete_List(LZ77_token_list);
 
 	file = fopen(output_file_path, "wb");
