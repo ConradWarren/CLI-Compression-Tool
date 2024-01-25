@@ -67,10 +67,7 @@ char* LZ77_Decompress(token* list_head){
 			string_capacity += string_capacity / 2;
 			result = (char*)realloc(result,(string_capacity + 1) * sizeof(char));
 		}
-
-	//	memcpy(result + string_size, result + string_size - list_head->D, list_head->L * sizeof(char));		
-		//Opertunities for optimization here later. Can't do this straight out of the box as it can try to copy over itself
-
+		
 		for(int i = 0; i<list_head->L; i++){
 			result[string_size + i] = result[string_size - list_head->D + i];
 		}
@@ -80,6 +77,18 @@ char* LZ77_Decompress(token* list_head){
 		list_head = list_head->next;
 	}
 	result[string_size] = '\0';
+	return result;
+}
+
+unsigned long long Get_Data_Length(token* list_head){
+
+	unsigned long long result = 0;
+
+	while(list_head != NULL){
+		result += list_head->L + 1;
+		list_head = list_head->next;
+	}
+
 	return result;
 }
 

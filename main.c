@@ -163,6 +163,7 @@ int Inflate(const char* input_file_path, const char* output_file_path){
 	free(encoded_data);
 	
 	decompressed_data = LZ77_Decompress(LZ77_token_list);
+	unsigned long long decompressed_data_length = Get_Data_Length(LZ77_token_list);
 	Delete_List(LZ77_token_list);
 
 	file = fopen(output_file_path, "wb");
@@ -172,7 +173,7 @@ int Inflate(const char* input_file_path, const char* output_file_path){
 		return EXIT_FAILURE;
 	}
 	
-	fwrite(decompressed_data, sizeof(char), strlen(decompressed_data), file);	
+	fwrite(decompressed_data, sizeof(char), decompressed_data_length, file);	
 	fclose(file);
 	free(decompressed_data);
 	return 0;
@@ -206,3 +207,4 @@ int main(int argc, char** argv){
 	fprintf(stderr,"Error: Could Not Reconize Command\n");
 	return 0;
 }
+

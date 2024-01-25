@@ -18,6 +18,8 @@ token* LZ77_Compress(const char* input, size_t input_length);
 
 char* LZ77_Decompress(token* list_head);
 
+unsigned long long Get_Data_Length(token* list_head);
+
 void Delete_List(token* list_head);
 
 #endif
