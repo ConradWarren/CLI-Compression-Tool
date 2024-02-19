@@ -23,14 +23,15 @@ token* LZ77_Compress(const char* input, unsigned long long input_length){
 	int best_match_distance = 0;
 	int best_match_length = 0;
 	int prefix_function[MAX_LOOK_AHEAD_BUFFER_SIZE]; 
-
+	int idx = 0;
+	
 	for(long long i = 1; i<input_length; i += 1 + best_match_length){
 		
 		best_match_distance = 0;
 		best_match_length = 0;
 		
 		memset(prefix_function, 0, MAX_LOOK_AHEAD_BUFFER_SIZE * sizeof(int));
-		int idx = 0;
+		idx = 0;
 		for(int j = i + 1; j - i < MAX_LOOK_AHEAD_BUFFER_SIZE && j < input_length; j++){
 			while(idx < 0 && input[j] != input[i + idx]){
 				idx = prefix_function[idx - 1];
@@ -40,8 +41,7 @@ token* LZ77_Compress(const char* input, unsigned long long input_length){
 			}
 		}
 		idx = 0;
-		int best_match_position = 0;
-		for(int j = (0 > i - MAX_SEARCH_BUFFER_SIZE) ? 0 : i - MAX_SEARCH_BUFFER_SIZE; j < i + MAX_LOOK_AHEAD_BUFFER_SIZE && j < input_length; j++){
+		for(long long j = (0 > i - MAX_SEARCH_BUFFER_SIZE) ? 0 : i - MAX_SEARCH_BUFFER_SIZE; j < i + MAX_LOOK_AHEAD_BUFFER_SIZE && j < input_length; j++){
 			
 			while(idx > 0 && input[i + idx] != input[j]){
 				idx = prefix_function[idx-1];
