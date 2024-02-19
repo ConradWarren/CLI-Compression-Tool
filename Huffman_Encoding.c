@@ -140,6 +140,7 @@ symbol_frequency* Build_Frequency_Table(token* list_head, int* symbol_count){
 	return frequency_table;
 }
 
+
 void Generate_Huffman_Codes_Recursive(huffman_node* root, huffman_code* h_codes, int depth, char* code, int* idx){
 	
 	if(root->symbol != -1){

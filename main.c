@@ -5,8 +5,6 @@
 #include "LZ77.h"
 #include "Huffman_Encoding.h"
 
-//TODO: Change compressed data from bit string to indivisual bits
-// Implement Inflate 
 
 void Write_Huffman_Tree(FILE* file, huffman_node* root){
 	
@@ -156,12 +154,11 @@ int Inflate(const char* input_file_path, const char* output_file_path){
 		free(encoded_data);
 		return EXIT_FAILURE;
 	}
-
 	encoded_data[encoded_data_length] = '\0';
 	LZ77_token_list = Decode_Huffman_Data(h_tree, encoded_data, encoded_bit_count); 
 	Delete_Huffman_Tree(h_tree);
 	free(encoded_data);
-
+	
 	unsigned long long decompressed_data_length = Get_Data_Length(LZ77_token_list);
 	decompressed_data = LZ77_Decompress(LZ77_token_list, decompressed_data_length);
 	
@@ -171,6 +168,7 @@ int Inflate(const char* input_file_path, const char* output_file_path){
 	}
 
 	Delete_List(LZ77_token_list);
+	
 
 	file = fopen(output_file_path, "wb");
 	if(file == NULL){

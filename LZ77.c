@@ -1,6 +1,6 @@
 #include "LZ77.h"
 
-#define MAX_SEARCH_BUFFER_SIZE 65536
+#define MAX_SEARCH_BUFFER_SIZE 65535 //65535
 #define MAX_LOOK_AHEAD_BUFFER_SIZE 255
 #define MIN_PATTERN_MATCH_SIZE 0
 
@@ -14,43 +14,55 @@ token* Add_Token(int L, int D, char C){
 
 token* LZ77_Compress(const char* input, unsigned long long input_length){
 	
-	token* result = NULL;
-	token* current = NULL;
+	if(input_length == 0){
+		return NULL;
+	}
+
+	token* result = Add_Token(0, 0, input[0]);
+	token* current = result;
 	int best_match_distance = 0;
 	int best_match_length = 0;
+	int prefix_function[MAX_LOOK_AHEAD_BUFFER_SIZE]; 
 
-	for(long long i = 0; i<input_length; i += 1 + best_match_length){
+	for(long long i = 1; i<input_length; i += 1 + best_match_length){
 		
 		best_match_distance = 0;
 		best_match_length = 0;
-
-		for(long long j = i - 1; j >= 0 && i - j < MAX_SEARCH_BUFFER_SIZE; j--){
+		
+		memset(prefix_function, 0, MAX_LOOK_AHEAD_BUFFER_SIZE * sizeof(int));
+		int idx = 0;
+		for(int j = i + 1; j - i < MAX_LOOK_AHEAD_BUFFER_SIZE && j < input_length; j++){
+			while(idx < 0 && input[j] != input[i + idx]){
+				idx = prefix_function[idx - 1];
+			}
+			if(input[j] == input[i + idx]){
+				prefix_function[j - i] = ++idx;
+			}
+		}
+		idx = 0;
+		int best_match_position = 0;
+		for(int j = (0 > i - MAX_SEARCH_BUFFER_SIZE) ? 0 : i - MAX_SEARCH_BUFFER_SIZE; j < i + MAX_LOOK_AHEAD_BUFFER_SIZE && j < input_length; j++){
 			
-			if(input[i] != input[j]){
-				continue;
+			while(idx > 0 && input[i + idx] != input[j]){
+				idx = prefix_function[idx-1];
+			}
+			
+			if(input[j] == input[i + idx]){
+				idx++;
 			}
 
-			for(long long z = 0; z + i + 1 < input_length && z < MAX_LOOK_AHEAD_BUFFER_SIZE; z++){
-				
-				if(input[j + z] != input[i + z]){
-					break;
-				}
+			if(j - idx + 1 >= i) break;
+			
+			if(idx > best_match_length && i + idx < input_length){
+				best_match_length = idx;
+				best_match_distance = i - (j - idx + 1);
+			}
 
-				if(z + 1 > best_match_length && z + 1 > MIN_PATTERN_MATCH_SIZE){
-					best_match_length = z + 1;
-					best_match_distance = i - j;
-				}		
-			}	
+			if(idx == MAX_LOOK_AHEAD_BUFFER_SIZE) break;
 		}
 		
-		if(result == NULL){
-			result = Add_Token(best_match_length, best_match_distance, input[i + best_match_length]);
-			current = result;
-		}else{
-			current->next = Add_Token(best_match_length, best_match_distance, input[i + best_match_length]);
-			current = current->next;
-		}
-
+		current->next = Add_Token(best_match_length, best_match_distance, input[i + best_match_length]);
+		current = current->next;
 	}
 	
 	return result;
@@ -58,9 +70,14 @@ token* LZ77_Compress(const char* input, unsigned long long input_length){
 
 char* LZ77_Decompress(token* list_head, unsigned long long data_length){
 	
-	char* result = (char*)malloc(data_length * sizeof(char));
+	char* result = (char*)malloc((data_length + 1) * sizeof(char));
 	unsigned long long string_size = 0;
 	
+	if(result == NULL){
+		printf("Error: failed to allocate memory for decompression\n");
+		return NULL;
+	}
+
 	while(list_head != NULL){
 		
 		for(unsigned long long i = 0; i<list_head->L; i++){
